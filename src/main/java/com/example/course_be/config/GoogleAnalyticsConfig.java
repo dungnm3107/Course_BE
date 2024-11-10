@@ -5,6 +5,7 @@ import com.google.analytics.data.v1beta.BetaAnalyticsDataSettings;
 import com.google.auth.oauth2.GoogleCredentials;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -15,10 +16,10 @@ public class GoogleAnalyticsConfig {
 
     @Bean
     public BetaAnalyticsDataClient betaAnalyticsDataClient() throws IOException {
-        String credentialsPath = "src/main/resources/service-account.json";
+        ClassPathResource resource = new ClassPathResource("service-account.json");
 
         GoogleCredentials credentials = GoogleCredentials
-                .fromStream(new FileInputStream(credentialsPath))
+                .fromStream(resource.getInputStream())
                 .createScoped(Collections.singletonList("https://www.googleapis.com/auth/analytics.readonly"));
 
         BetaAnalyticsDataSettings settings = BetaAnalyticsDataSettings.newBuilder()

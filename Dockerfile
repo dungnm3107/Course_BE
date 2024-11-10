@@ -1,18 +1,23 @@
 #1: user maven for building
 
-FROM maven:3.6.3-openjdk-17-slim AS build
+FROM maven:3.9.4-eclipse-temurin-21 AS build
 
 WORKDIR /app
-COPY . ./CourseSpringBE
-WORKDIR /app/CourseSpringBE
+COPY pom.xml ./
+RUN mvn dependency:go-offline
+
+COPY . .
 RUN mvn clean package -DskipTests
 
 #2: user java for running
-
 FROM openjdk:21-jdk-slim
+
 WORKDIR /app
-COPY --from=build /app/CourseSpringBE/target/*.jar /app/CourseSpringBE.jar
+
+COPY --from=BUILD /app/target/*.jar app.jar
+COPY --from=BUILD /app/src/main/resources /app/src/main/resources
 
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "CourseSpringBE.jar"]
+
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
 
