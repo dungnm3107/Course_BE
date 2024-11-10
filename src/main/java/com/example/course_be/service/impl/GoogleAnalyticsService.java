@@ -1,18 +1,10 @@
 package com.example.course_be.service.impl;
 
-import com.google.analytics.data.v1beta.BetaAnalyticsDataClient;
-import com.google.analytics.data.v1beta.RunReportRequest;
-import com.google.analytics.data.v1beta.RunReportResponse;
-import com.google.analytics.data.v1beta.DateRange;
-import com.google.analytics.data.v1beta.Metric;
-import com.google.analytics.data.v1beta.Dimension;
-import com.google.analytics.data.v1beta.DimensionHeader;
-import com.google.analytics.data.v1beta.MetricHeader;
+import com.google.analytics.data.v1beta.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.List;
 
 @Service
 public class GoogleAnalyticsService {
@@ -28,27 +20,24 @@ public class GoogleAnalyticsService {
 
     public long getActiveUsers() throws IOException {
         RunReportRequest request = RunReportRequest.newBuilder()
-                .setProperty("properties/" + propertyId)  // Chèn property ID
-                .addDimensions(Dimension.newBuilder().setName("date").build()) // Thêm Dimension
-                .addMetrics(Metric.newBuilder().setName("activeUsers").build()) // Thêm Metric
-                .addDateRanges(DateRange.newBuilder().setStartDate("2024-10-01").setEndDate("today").build()) // Khoảng thời gian
+                .setProperty("properties/" + propertyId)
+                .addDimensions(Dimension.newBuilder().setName("date").build())
+                .addMetrics(Metric.newBuilder().setName("activeUsers").build())
+                .addDateRanges(DateRange.newBuilder().setStartDate("2024-10-01").setEndDate("today").build())
                 .build();
-
 
         RunReportResponse response = betaAnalyticsDataClient.runReport(request);
 
-        if (!response.getRowsList().isEmpty()) {
-            long totalActiveUsers = 0;
-
-            // Duyệt qua tất cả các dòng và cộng tổng số lượng người dùng
-            for (var row : response.getRowsList()) {
-                totalActiveUsers += Long.parseLong(row.getMetricValues(0).getValue());
-            }
-
-            return totalActiveUsers;
+        // Kiểm tra nếu response trả về lỗi hoặc không có dòng nào
+        if (response == null || response.getRowsList().isEmpty()) {
+            return 0;
         }
-        return 0;
-    }
 
+        // Sử dụng Stream API để tính tổng số lượng active users
+        return response.getRowsList().stream()
+                .mapToLong(row -> Long.parseLong(row.getMetricValues(0).getValue()))
+                .sum();
+    }
 }
+
 
