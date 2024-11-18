@@ -21,10 +21,14 @@ public enum ErrorCode {
     COURSE_NOT_FOUND(404, "Khóa học không tồn tại ", HttpStatus.NOT_FOUND),
     COURSE_ALREADY_EXISTS(409, "Khóa học đã tồn tại ", HttpStatus.CONFLICT),
     COURSE_SAVE_ERROR(500, "Lưu khóa học không thành công ", HttpStatus.INTERNAL_SERVER_ERROR),
-    CHAPTER_NOT_FOUND(404, "Chapter not found", HttpStatus.NOT_FOUND),
-    CHAPTER_ALREADY_EXISTS(409, "Chapter already exists", HttpStatus.CONFLICT),
-    LESSON_NOT_FOUND(404, "Lesson not found", HttpStatus.NOT_FOUND),
-    ;
+    CHAPTER_NOT_FOUND(404, "Chương không tồn tại ", HttpStatus.NOT_FOUND),
+    CHAPTER_ALREADY_EXISTS(409, "Chương đã tồn tại ", HttpStatus.CONFLICT),
+    LESSON_NOT_FOUND(404, "Bài học chưa tồn tại ", HttpStatus.NOT_FOUND),
+    LESSON_ALREADY_EXISTS(409, "Bài học đã tồn tại ", HttpStatus.CONFLICT),
+    LESSON_SAVE_ERROR(500, "Lỗi khi lưu bài học ", HttpStatus.INTERNAL_SERVER_ERROR),
+    TOKEN_NOT_FOUND(404, "Token không tồn tại ", HttpStatus.NOT_FOUND),
+    TOKEN_EXPIRED(401, "Token đã hết hạn", HttpStatus.UNAUTHORIZED),
+    EMAIL_NOT_FOUND(404, "Email không tồn tại trong hệ thống", HttpStatus.NOT_FOUND);
 
 
     private int code;

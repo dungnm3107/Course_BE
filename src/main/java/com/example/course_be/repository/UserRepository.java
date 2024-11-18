@@ -35,4 +35,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "WHERE u.isDeleted = false AND FUNCTION('YEAR', u.createdDate) = :year " +
             "GROUP BY FUNCTION('MONTH', u.createdDate)")
     List<UserRegistrationStatisticsResponse> countUserRegistrationsByMonthAndYear(@Param("year") int year);
+
 }

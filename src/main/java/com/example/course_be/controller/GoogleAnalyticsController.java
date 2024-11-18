@@ -19,7 +19,7 @@ public class GoogleAnalyticsController {
     public GoogleAnalyticsController(GoogleAnalyticsService googleAnalyticsService) {
         this.googleAnalyticsService = googleAnalyticsService;
     }
-
+// seccion(1 lượt truy cập) bắt đầu khi user truy cập vào trang web và kết thúc khi user không có hoạt động nào trong 30 phút.
     @GetMapping("/user-access")
     public ResponseEntity<Long> getActiveUsers() {
         try {

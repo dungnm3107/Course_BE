@@ -2,7 +2,6 @@ package com.example.course_be.security;
 
 public class Endpoints {
 
-    public static final String font_end_host = "http://localhost:3000";
 
     public static final String[] PUBLIC_GET = {
             "/api/v1/chapter",
@@ -23,8 +22,13 @@ public class Endpoints {
             "/api/v1/progress/completed",
             "api/v1/video/stream",
             "api/v1/video/get-presigned-url",
+            "/api/v1/video/gcs/get-url",
             "/api/v1/user/profile",
             "/api/v1/lesson-watch-history/top8-watched",
+    };
+
+    public static final String[] PUBLIC_PUT = {
+            "/api/v1/password-reset/change-password",
     };
 
     public static final String[] PUBLIC_POST = {
@@ -36,6 +40,8 @@ public class Endpoints {
             "/api/v1/lesson-watch-history/save",
             "/api/v1/favorite-lessons/toggle",
             "/api/v1/progress",
+            "/api/v1/password-reset",
+            "api/v1/password-reset/validate-token",
     };
 
     public static final String[] ADMIN_POST = {
@@ -45,6 +51,7 @@ public class Endpoints {
             "/api/v1/chapter/save",
             "/api/v1/course/upload-cover",
             "/api/v1/video/upload",
+            "/api/v1/video/gcs/upload",
     };
     public static final String[] PUBLIC_DELETE = {
             "/api/v1/favorite-lessons",
@@ -70,6 +77,7 @@ public class Endpoints {
             "/api/v1/course/changeStatus/**",
             "/api/v1/chapter/update",
             "/api/v1/lesson/update",
+
     };
     public static final String[] ADMIN_DELETE = {
             "/api/v1/course/**",
@@ -92,6 +100,7 @@ public class Endpoints {
 
     public static final String[] CUSTOMER_PUT = {
             "/api/v1/user/updateUser",
+
     };
 
 }
