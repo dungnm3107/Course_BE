@@ -60,22 +60,6 @@ public class Course implements Serializable {
     @Column(name = "deleted", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean deleted = (Boolean) false;
 
-
-    @ManyToMany(fetch = FetchType.LAZY , cascade = {
-            CascadeType.DETACH,
-            CascadeType.MERGE,
-            CascadeType.PERSIST,
-            CascadeType.REFRESH
-    })
-    @JoinTable(name = "enrolments_course",
-            joinColumns = @JoinColumn(name = "course_id"),
-            inverseJoinColumns = @JoinColumn(name = "enrolments_id"))
-    private List<Enrolments> listEnrolments;
-
-
-    @OneToMany(mappedBy = "course" ,fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<PurchaseHistory> listPurchaseHistory;
-
     @OneToMany(mappedBy = "course")
     private List<UserCourse> courseUsers;
 

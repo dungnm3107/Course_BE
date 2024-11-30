@@ -1,25 +1,31 @@
 package com.example.course_be.service.impl;
 
+import com.example.course_be.config.GoogleCloudStorageConfig;
 import com.example.course_be.entity.Chapter;
 import com.example.course_be.entity.Course;
 import com.example.course_be.entity.User;
 import com.example.course_be.enums.CourseType;
+import com.example.course_be.enums.OrderStatus;
 import com.example.course_be.exceptions.AppException;
 import com.example.course_be.exceptions.ErrorCode;
 import com.example.course_be.repository.ChapterRepository;
 import com.example.course_be.repository.CourseRepository;
-import com.example.course_be.repository.LessonRepository;
+import com.example.course_be.repository.OrderRepository;
 import com.example.course_be.repository.UserRepository;
 import com.example.course_be.request.course.CourseRequest;
 import com.example.course_be.request.course.CourseUpdateRequest;
 import com.example.course_be.response.course.CourseResponse;
 import com.example.course_be.response.course.CourseStatisticResponse;
 import com.example.course_be.service.CourseService;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.cloud.storage.Acl;
+import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.Storage;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -33,8 +39,10 @@ public class CourseServiceImpl implements CourseService {
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
     private final ChapterRepository chapterRepository;
-    private final ObjectMapper objectMapper;
-    private final LessonRepository lessonRepository;
+    private final GoogleCloudStorageConfig googleCloudStorageConfig;
+    private final OrderRepository orderRepository;
+    private final Storage storage;
+
 
     @Override
     @Transactional
@@ -81,7 +89,7 @@ public class CourseServiceImpl implements CourseService {
         return listCoresResponse;
     }
 
-
+    @Override
     public List<CourseResponse> getAllFreeCourses() {
         List<Course> freeCourses = courseRepository.findByCourseTypeAndDeletedFalse(CourseType.FREE);
         if (freeCourses.isEmpty()) {
@@ -94,7 +102,7 @@ public class CourseServiceImpl implements CourseService {
         return freeCourseResponses;
     }
 
-
+    @Override
     public List<CourseResponse> getAllPaidCourses() {
         List<Course> paidCourses = courseRepository.findByCourseTypeAndDeletedFalse(CourseType.PAID);
         if (paidCourses.isEmpty()) {
@@ -107,14 +115,45 @@ public class CourseServiceImpl implements CourseService {
         return paidCourseResponses;
     }
 
+    @Override
+    public String uploadFile(MultipartFile file) throws IOException {
+        String fileName = file.getOriginalFilename();
+        if (fileName == null || fileName.isEmpty()) {
+            throw new IllegalArgumentException("Tên tệp không hợp lệ.");
+        }
+
+        // Kiểm tra định dạng tệp (JPG, JPEG, PNG)
+        String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+        if (!fileExtension.equals("jpg") && !fileExtension.equals("jpeg") && !fileExtension.equals("png")) {
+            throw new IllegalArgumentException("Chỉ hỗ trợ định dạng JPG, JPEG và PNG.");
+        }
+
+        // Tạo BlobInfo cho tệp sẽ upload vào thư mục "images" trong bucket
+        BlobInfo blobInfo = BlobInfo.newBuilder(googleCloudStorageConfig.getBucketName(), "images/" + fileName).build();
+
+        // Upload ảnh vào Google Cloud Storage
+        Blob blob = storage.create(blobInfo, file.getBytes());
+
+        // Cấp quyền "public-read" cho file vừa upload
+        blob.createAcl(Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER));
+
+        return String.format("https://storage.googleapis.com/%s/images/%s", googleCloudStorageConfig.getBucketName(), fileName);
+    }
+
 
     @Override
     public String deleteCourseById(Long courseId) {
-    Course course = courseRepository.findById(courseId)
-                    .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
-            course.setDeleted(true);
-            courseRepository.save(course);
-            return "Course deleted successfully";
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
+        // kiểm tra xem khóa học đã được mua chưa
+        boolean isPublished = orderRepository.existsByCourseIdAndStatus(courseId, OrderStatus.COMPLETED);
+
+        if (isPublished) {
+            throw new AppException(ErrorCode.COURSE_CAN_NOT_BE_DELETED);
+        }
+        course.setDeleted(true);
+        courseRepository.save(course);
+        return "Course deleted successfully";
     }
 
 
@@ -161,11 +200,12 @@ public class CourseServiceImpl implements CourseService {
         }
         return courseRepository.searchCoursesByKeywords(keyword); // Gọi phương thức mới
     }
+
     @Override
     public CourseStatisticResponse getCourseStatistic() {
         long totalCourses = courseRepository.countCourses();
         long totalChapters = courseRepository.countChapters();
-        long totalLesson =  courseRepository.countLessons();
+        long totalLesson = courseRepository.countLessons();
         return new CourseStatisticResponse(totalCourses, totalChapters, totalLesson);
 
     }
@@ -203,16 +243,18 @@ public class CourseServiceImpl implements CourseService {
         if (courseUpdateRequest.getCoursePrice() != null) {
             courseToUpdate.setCoursePrice(courseUpdateRequest.getCoursePrice());
         }
+        if (courseUpdateRequest.getCourseType() != null) {
+            courseToUpdate.setCourseType(courseUpdateRequest.getCourseType());
+        }
         if (courseUpdateRequest.getCover() != null) {
             courseToUpdate.setCover(courseUpdateRequest.getCover());
         }
-        if(courseUpdateRequest.getVideoUrl() != null) {
+        if (courseUpdateRequest.getVideoUrl() != null) {
             courseToUpdate.setVideoUrl(courseUpdateRequest.getVideoUrl());
         }
 
         return courseToUpdate;
     }
-
 
 
     private CourseResponse convertCourseToResponse(Course course) {

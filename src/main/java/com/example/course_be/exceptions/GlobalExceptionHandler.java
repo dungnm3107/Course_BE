@@ -19,8 +19,10 @@ import java.util.stream.Collectors;
 @Slf4j
 public class GlobalExceptionHandler {
 
+    // Xử lý lỗi AppException
     @ExceptionHandler(value = AppException.class)
     public ResponseEntity<ApiResponse<?>> handleAppException(AppException exception) {
+        // Lấy errorCode từ AppException
         ErrorCode errorCode = exception.getErrorCode();
         ApiResponse<?> apiResponse = new ApiResponse<>();
         apiResponse.setCode(errorCode.getCode());
@@ -28,6 +30,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(errorCode.getStatusCode()).body(apiResponse);
     }
 
+    // Xử lý các lỗi liên quan đến Validation (ConstraintViolationException, MethodArgumentNotValidException)
     @ExceptionHandler(value = {
             ConstraintViolationException.class,
             MethodArgumentNotValidException.class
@@ -41,6 +44,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(apiResponse);
     }
 
+    // Phương thức trích xuất thông báo lỗi khi xảy ra lỗi validation
     private String extractValidationMessage(Exception exception) {
         if (exception instanceof ConstraintViolationException) {
             return ((ConstraintViolationException) exception).getConstraintViolations()
@@ -57,6 +61,7 @@ public class GlobalExceptionHandler {
         }
     }
 
+    // Xử lý lỗi chung cho tất cả các ngoại lệ không xác định
     @ExceptionHandler(value = Exception.class)
     public ResponseEntity<ApiResponse<?>> handleGenericException(Exception exception) {
         log.error("Exception: ", exception);
@@ -65,9 +70,10 @@ public class GlobalExceptionHandler {
         apiResponse.setMessage(ErrorCode.UNCATEGORIZED.getMessage());
         return ResponseEntity.internalServerError().body(apiResponse);
     }
+
+    // Xử lý lỗi khi tải lên file quá lớn
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<String> handleMaxSizeException(MaxUploadSizeExceededException exc) {
         return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("File quá lớn! Vui lòng tải lên tệp có kích thước nhỏ hơn.");
     }
-
 }

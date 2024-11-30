@@ -120,9 +120,9 @@ public class LessonServiceImpl implements LessonService {
             throw new AppException(ErrorCode.LESSON_NOT_FOUND);
         }
         List<Lesson> lessons = lessonRepository.findAllByChapterIdAndDeletedFalse(id);
-        if (lessons == null || lessons.isEmpty()) {
-            throw new AppException(ErrorCode.CHAPTER_NOT_FOUND); // hoặc xử lý hợp lý khác
-        }
+//        if (lessons == null || lessons.isEmpty()) {
+//            throw new AppException(ErrorCode.CHAPTER_NOT_FOUND); // hoặc xử lý hợp lý khác
+//        }
         return lessons.stream()
                 .map(this::convertLessonToResponseGetAll)
                 .collect(Collectors.toList());

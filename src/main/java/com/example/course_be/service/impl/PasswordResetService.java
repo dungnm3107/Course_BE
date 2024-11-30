@@ -43,7 +43,6 @@ public class PasswordResetService {
         passwordResetTokenRepository.deleteByEmail(email);
 
         // tao ma xac thuc 6 chu so
-
         SecureRandom random = new SecureRandom();
         String token = String.format("%06d", random.nextInt(1000000));
 
@@ -54,7 +53,6 @@ public class PasswordResetService {
 
         passwordResetTokenRepository.save(resetToken);
         //token in đậm và in hoa
-        // Gửi email với HTML (token in đậm và in hoa)
         String emailContent = "<html><body>" +
                 "<p><strong><font size=\"5\">" + token.toUpperCase() + "</font></strong></p>" +
                 "<p>Đây là mã xác nhận của bạn để đặt lại mật khẩu. Vui lòng nhập mã này để tiếp tục.</p>" +

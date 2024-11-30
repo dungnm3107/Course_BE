@@ -39,6 +39,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
     @Override
     public Map<String, Object> googleLogin(String idTokenString) {
         try {
+       // check gg_id_token phía client gửi xuống
             GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
                     GoogleNetHttpTransport.newTrustedTransport(), JSON_FACTORY)
                     .setAudience(Collections.singletonList(clientId))
@@ -62,7 +63,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
                     user.setAvatar(pictureUrl);
                     user.setGoogleId(userId);
 
-                    // Assign the CUSTOMER role to the new user
+                    // set role default
                     Role customerRole = roleRepository.findByRoleName("CUSTOMER");
                     if (customerRole == null) {
                         customerRole = new Role();
@@ -72,7 +73,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
                     user.setListRoles(Collections.singletonList(customerRole));
                     userRepository.save(user);
                 }
-
+                // tạo token xác thực nguoi dùng sau khi đăng nhập
                 String token = jwtService.generateToken(user.getUserName());
 
                 // Return a response with token, avatar, and roles

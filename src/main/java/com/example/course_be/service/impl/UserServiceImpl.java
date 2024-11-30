@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Autowired
-    public UserServiceImpl(BCryptPasswordEncoder passwordEncoder, UserRepository userRepository, RoleRepository roleRepository, AuthenticationManager authenticationManager, JwtService jwtService, CourseRepository courseRepository, UserCourseRepository userCourseRepository, PurchaseHistoryRepository purchaseHistoryRepository, EnrolmentsRepository enrolmentsRepository) {
+    public UserServiceImpl(BCryptPasswordEncoder passwordEncoder, UserRepository userRepository, RoleRepository roleRepository, AuthenticationManager authenticationManager, JwtService jwtService, CourseRepository courseRepository, UserCourseRepository userCourseRepository) {
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
@@ -134,6 +134,7 @@ public class UserServiceImpl implements UserService {
         }
         return "Course not found to add";
     }
+
     //api get user by id
     @Override
     public Optional<User> getUserById(Long userId) {
@@ -166,7 +167,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByUsername(String username) {
-      return userRepository.findByUserName(username);
+        return userRepository.findByUserName(username);
     }
 
     @Override
@@ -175,17 +176,17 @@ public class UserServiceImpl implements UserService {
     }
 
 
-// api delete user
-@Override
-public String deleteUser(Long userId) {
-    User user = userRepository.findById(userId)
-            .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-    user.setIsDeleted(true);
-    userRepository.save(user);
-    return "User deleted successfully";
-}
+    // api delete user
+    @Override
+    public String deleteUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        user.setIsDeleted(true);
+        userRepository.save(user);
+        return "User deleted successfully";
+    }
 
-// lay ngay tao user
+    // lay ngay tao user
     public Date getUserCreatedDate(Long userId) {
         Optional<User> user = userRepository.findById(userId);
         return user.map(User::getCreatedDate).orElse(null);
@@ -194,5 +195,13 @@ public String deleteUser(Long userId) {
     @Override
     public List<UserRegistrationStatisticsResponse> getUserRegistrationsByMonthAndYear(int year) {
         return userRepository.countUserRegistrationsByMonthAndYear(year);
+    }
+
+    @Override
+    public List<UserResponse> searchUsers(String username) {
+        if (username == null || username.isEmpty()) {
+            return userRepository.getAllActiveUsers(); //get all
+        }
+        return userRepository.findUserByUserName(username);
     }
 }

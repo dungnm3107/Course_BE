@@ -77,16 +77,6 @@ public class User implements Serializable {
 //    @JsonIgnore
     private List<Role> listRoles;
 
-
-    @OneToMany(mappedBy = "user" ,fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Enrolments> listEnrolments;
-
-    @OneToMany(mappedBy = "user" ,fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Comments> listComments;
-
-    @OneToMany(mappedBy = "user" ,fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<PurchaseHistory> listPurchaseHistory;
-
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<FavoriteLesson> favoriteLessons;
@@ -94,8 +84,5 @@ public class User implements Serializable {
 
     @OneToMany(mappedBy = "user")
     private List<UserCourse> userCourses;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<SystemConfig> systemConfigs;
 
 }

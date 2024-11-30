@@ -36,4 +36,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @Query("SELECT SUM(o.totalPrice) FROM Order o WHERE o.status = 'COMPLETED'")
     BigDecimal findTotalRevenueByStatusCompleted();
+    // check xem khóa học đã được user  mua trước đó hay chưa
+    boolean existsByCourseIdAndStatus(Long courseId, OrderStatus status);
 }

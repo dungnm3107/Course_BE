@@ -28,7 +28,8 @@ public enum ErrorCode {
     LESSON_SAVE_ERROR(500, "Lỗi khi lưu bài học ", HttpStatus.INTERNAL_SERVER_ERROR),
     TOKEN_NOT_FOUND(404, "Token không tồn tại ", HttpStatus.NOT_FOUND),
     TOKEN_EXPIRED(401, "Token đã hết hạn", HttpStatus.UNAUTHORIZED),
-    EMAIL_NOT_FOUND(404, "Email không tồn tại trong hệ thống", HttpStatus.NOT_FOUND);
+    EMAIL_NOT_FOUND(404, "Email không tồn tại trong hệ thống", HttpStatus.NOT_FOUND),
+    COURSE_CAN_NOT_BE_DELETED(409, "Khóa học đã được mua, không thể xóa", HttpStatus.CONFLICT);
 
 
     private int code;

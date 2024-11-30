@@ -172,6 +172,12 @@ public class UserController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<UserResponse>> searchUsers(@RequestParam(required = false) String username) {
+        List<UserResponse> users = userService.searchUsers(username);
+        return ResponseEntity.ok(users);
+    }
     // get so luong user
     @GetMapping("/count")
     public ResponseEntity<Long> getCountUser() {

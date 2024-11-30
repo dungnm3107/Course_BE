@@ -11,6 +11,7 @@ import com.example.course_be.service.CourseService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -48,32 +49,12 @@ public class CourseController {
     }
 
     @PostMapping("/upload-cover")
-    public ResponseEntity<String> uploadCoverToStatic(@RequestParam("file") MultipartFile file) {
-        String relativeDir = "/images/";
-        String absoluteDir = "/home/dungnm/Documents/Do_an/CourseSpringBE/src/main/resources/static/images/";
-        String fileName = file.getOriginalFilename();
-
-        // Kiểm tra định dạng tệp
-        String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
-        if (!fileExtension.equals("jpg") && !fileExtension.equals("jpeg") && !fileExtension.equals("png")) {
-            return ResponseEntity.badRequest().body("Chỉ hỗ trợ định dạng JPG, JPEG và PNG.");
-        }
-
-        // Tạo đối tượng File mới với đường dẫn tuyệt đối và tên file
-        File targetFile = new File(absoluteDir + fileName);
-
+    public ResponseEntity<String> uploadCover(@RequestParam("file") MultipartFile file) {
         try {
-            // Kiểm tra xem thư mục có tồn tại không, nếu không thì tạo
-            File directory = new File(absoluteDir);
-            if (!directory.exists()) {
-                directory.mkdirs();
-            }
-
-            // Chuyển file từ MultipartFile sang File
-            file.transferTo(targetFile);
-
-            // Trả về đường dẫn tương đối
-            return ResponseEntity.ok(relativeDir + fileName);
+            String filePath = courseService.uploadFile(file);
+            return ResponseEntity.ok(filePath);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("File upload failed: " + e.getMessage());
         }
@@ -109,22 +90,14 @@ public class CourseController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<?> getAllCourses() {
-        try {
-            List<CourseResponse> listCourseResponses = courseService.getAllCourses();
-            ApiResponse<List<CourseResponse>> apiResponse = new ApiResponse<>();
-            apiResponse.setCode(200);
-            apiResponse.setResult(listCourseResponses);
-            return ResponseEntity.ok(apiResponse);
-        } catch (AppException e) {
-            ApiResponse<String> errorResponse = new ApiResponse<>();
-            errorResponse.setCode(e.getErrorCode().getCode());
-            errorResponse.setMessage(e.getErrorCode().getMessage());
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<List<CourseResponse>> getAllCourses() {
+        // Lấy danh sách khóa học từ service
+        List<CourseResponse> listCourseResponses = courseService.getAllCourses();
+
+        // Trả về danh sách khóa học với mã thành công 200
+        return ResponseEntity.ok(listCourseResponses);
     }
+
 
     @GetMapping("/free")
     public ResponseEntity<?> getAllFreeCourses() {

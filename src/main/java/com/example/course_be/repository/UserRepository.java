@@ -36,4 +36,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "GROUP BY FUNCTION('MONTH', u.createdDate)")
     List<UserRegistrationStatisticsResponse> countUserRegistrationsByMonthAndYear(@Param("year") int year);
 
+
+    @Query("SELECT new com.example.course_be.response.user.UserResponse(u.id, u.userName, u.fullName, u.email, u.avatar, u.gender, u.phone, u.isDeleted) " +
+            "FROM User u WHERE u.userName LIKE %:username% AND u.isDeleted = false")
+    List<UserResponse> findUserByUserName(@Param("username") String username);
 }

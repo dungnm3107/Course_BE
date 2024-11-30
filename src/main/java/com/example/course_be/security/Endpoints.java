@@ -59,7 +59,7 @@ public class Endpoints {
 
     public static final String[] ADMIN_GET = {
             "/api/v1/course/all",
-            "/api/v1/user/allUsers",
+            "/api/v1/user/search/**",
             "/api/v1/user/**",
             "/api/v1/video/presigned-url/**",
             "/api/v1/user/count",

@@ -34,4 +34,6 @@ public interface UserService {
     String deleteUser(Long userId);
 
     List<UserRegistrationStatisticsResponse> getUserRegistrationsByMonthAndYear(int year);
+
+    List<UserResponse> searchUsers(String username);
 }
