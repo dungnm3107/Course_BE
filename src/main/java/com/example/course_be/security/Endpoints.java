@@ -25,6 +25,7 @@ public class Endpoints {
             "/api/v1/video/gcs/get-url",
             "/api/v1/user/profile",
             "/api/v1/lesson-watch-history/top8-watched",
+            "/api/v1/orders/user"
     };
 
     public static final String[] PUBLIC_PUT = {

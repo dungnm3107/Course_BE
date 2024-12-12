@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.course_be.response.ResponseObject;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,6 +24,10 @@ public class PaymentController {
 
     private final PaymentService paymentService;
     private final OrderService orderService;
+
+    @Value("${frontend.domain}")
+    private String frontendDomain;
+
     @GetMapping("/vn-pay")
     public ResponseObject<PaymentDTO.VNPayResponse> pay(HttpServletRequest request) {
         return new ResponseObject<>(HttpStatus.OK, "Success", paymentService.createVnPayPayment(request));
@@ -34,12 +39,10 @@ public class PaymentController {
         for (Map.Entry<String, String[]> entry : paramMap.entrySet()) {
             vnpParams.put(entry.getKey(), entry.getValue()[0]);
         }
+
         String vnpResponseCode = vnpParams.get("vnp_ResponseCode");
         String vnpTxnRef = vnpParams.get("vnp_TxnRef");
-        System.out.println(vnpTxnRef);
 
-//        Long orderId = Long.valueOf(vnpTxnRef);
-        // Kiểm tra nếu vnp_TxnRef là null hoặc trống
         if (vnpTxnRef == null || vnpTxnRef.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Transaction reference (vnp_TxnRef) is missing or invalid.");
@@ -47,25 +50,29 @@ public class PaymentController {
 
         Long orderId;
         try {
-            // Chuyển đổi vnp_TxnRef thành Long
             orderId = Long.valueOf(vnpTxnRef);
         } catch (NumberFormatException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Transaction reference (vnp_TxnRef) is not a valid number.");
         }
-        // Kiểm tra mã phản hồi từ VNPAY
+// check thêm xử lý thành công mà server lỗi.
+        String redirectUrl;
         if ("00".equals(vnpResponseCode)) {
             orderService.updateOrderStatus(orderId, true);
-            return ResponseEntity.status(HttpStatus.FOUND)
-                    .header("Location", "http://localhost:5173/payment-success")
-                    .build();
+            // URL điều hướng khi thanh toán thành công
+            redirectUrl = frontendDomain + "/payment-success";
         } else {
             orderService.updateOrderStatus(orderId, false);
-            return ResponseEntity.status(HttpStatus.FOUND)
-                    .header("Location", "http://localhost:5173/payment-failed")
-                    .build();
+            // URL điều hướng khi thanh toán thất bại
+            redirectUrl = frontendDomain + "/payment-failed";
         }
+
+        // Đảm bảo chỉ có một header "Location"
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .header("Location", redirectUrl)
+                .build();
     }
+
 
 
 }

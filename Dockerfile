@@ -1,5 +1,4 @@
-#1: user maven for building
-
+#1: use maven for building
 FROM maven:3.9.4-eclipse-temurin-21 AS build
 
 WORKDIR /app
@@ -9,15 +8,13 @@ RUN mvn dependency:go-offline
 COPY . .
 RUN mvn clean package -DskipTests
 
-#2: user java for running
+#2: use java for running
 FROM openjdk:21-jdk-slim
 
 WORKDIR /app
 
-COPY --from=BUILD /app/target/*.jar app.jar
-COPY --from=BUILD /app/src/main/resources /app/src/main/resources
+COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 8080
 
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
-

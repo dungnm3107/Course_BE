@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.List;
 
+// sử dụng JPA Criteria API để xây dựng truy vấn động
 @Repository
 public class CourseRepositoryCustomImpl implements CourseRepositoryCustom {
 
@@ -34,18 +35,18 @@ public class CourseRepositoryCustomImpl implements CourseRepositoryCustom {
 
         // Duyệt qua từng từ và thêm điều kiện LIKE
         for (String keyword : keywordArray) {
-            if (!keyword.isEmpty()) { // Kiểm tra từ không rỗng
+            if (!keyword.isEmpty()) {
                 predicates.add(cb.like(cb.lower(course.get("title")), "%" + keyword.toLowerCase() + "%"));
             }
         }
 
-        // Thêm điều kiện kiểm tra khóa học không bị xóa
+        // kiểm tra khóa học không bị xóa
         Predicate deletedPredicate = cb.equal(course.get("deleted"), false);
 
-        // Sử dụng OR cho tất cả các predicates của từ khóa
-        cq.where(cb.and(deletedPredicate, cb.or(predicates.toArray(new Predicate[0])))); // AND cho deleted, OR cho từ khóa
+        // Sử dụng OR cho tất cả các predicates(điều kiện) của từ khóa
+        cq.where(cb.and(deletedPredicate, cb.or(predicates.toArray(new Predicate[0]))));
 
-        // Thực hiện truy vấn và trả về danh sách khóa học
+
         return entityManager.createQuery(cq).getResultList();
     }
 

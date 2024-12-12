@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -120,6 +121,16 @@ public class OrderServiceImpl implements OrderService {
         BigDecimal totalRevenue = orderRepository.findTotalRevenueByStatusCompleted();
         return totalRevenue != null ? totalRevenue : BigDecimal.ZERO;
     }
+
+    @Override
+    public List<OrderResponse> getOrdersByUserId(Long userId) {
+        List<Order> orders = orderRepository.findByUserId(userId);
+        // Tìm các đơn hàng của người dùng theo userId
+        return orders.stream()
+                .map(this::convertOrderToResponse)
+                .collect(Collectors.toList());
+    }
+
 
     private OrderResponse convertOrderToResponse(Order order) {
         return new OrderResponse(

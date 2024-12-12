@@ -19,5 +19,8 @@ public interface OrderService {
     List<Course> getMostPurchasedCourses();
     List<RevenueResponse> getMonthlyRevenue(int year);
     BigDecimal getTotalRevenueByStatusCompleted();
+
+    List<OrderResponse> getOrdersByUserId(Long userId);
+
 }
 

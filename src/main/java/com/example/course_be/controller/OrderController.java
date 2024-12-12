@@ -88,4 +88,9 @@ public class OrderController {
         return ResponseEntity.ok(courses);
     }
 
+    @GetMapping("/user")
+    public List<OrderResponse> getOrdersByUserId(@RequestParam Long userId) {
+        return orderService.getOrdersByUserId(userId);
+    }
+
 }

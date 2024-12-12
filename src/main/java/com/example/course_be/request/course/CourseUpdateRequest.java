@@ -25,7 +25,7 @@ public class CourseUpdateRequest {
     @NotBlank(message = "Title is not empty")
     private String title;
 
-    @Size(min = EntityProperties.MAX_LENGTH_10, max = EntityProperties.MAX_LENGTH_225, message = "Description must be between 10 and 255 characters")
+    @Size(min = EntityProperties.MAX_LENGTH_10, max = EntityProperties.MAX_LENGTH_2000, message = "Description must be between 10 and 255 characters")
     @NotBlank(message = "Description is not empty")
     private String description;
 

@@ -23,7 +23,7 @@ public class LessonUpdateRequest {
     private String title;
 
     @NotBlank(message = "Content is not empty")
-    @Size(min = EntityProperties.MAX_LENGTH_5, max = EntityProperties.MAX_LENGTH_225, message = "Content must be at least 5 characters")
+    @Size(min = EntityProperties.MAX_LENGTH_5, max = EntityProperties.MAX_LENGTH_2000, message = "Content must be at least 5 characters")
     private String content;
 
     private String videoUrl;

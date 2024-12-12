@@ -33,15 +33,18 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
     @Autowired
     private JwtService jwtService;
-
+    // parsing dữ liệu JSON sử dụng JasonFactory để trả về các đối tượng
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
     @Override
     public Map<String, Object> googleLogin(String idTokenString) {
         try {
-       // check gg_id_token phía client gửi xuống
+            // check gg_id_token phía client gửi xuống
+
             GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
+                    // giải mã thành các đối tượng GoogleIdToken và GoogleIdToken.Payload
                     GoogleNetHttpTransport.newTrustedTransport(), JSON_FACTORY)
+                    // đảm bảo token có audience phù hợp với clientId của ứng dụng.
                     .setAudience(Collections.singletonList(clientId))
                     .build();
 

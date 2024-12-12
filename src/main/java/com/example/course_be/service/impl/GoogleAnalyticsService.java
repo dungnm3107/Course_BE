@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.LocalDate;
+
 
 @Service
 public class GoogleAnalyticsService {
@@ -18,12 +20,18 @@ public class GoogleAnalyticsService {
         this.betaAnalyticsDataClient = betaAnalyticsDataClient;
     }
 
-    public long getActiveUsers() throws IOException {
+    public long getAccessSessions() throws IOException {
+        String today = LocalDate.now().toString();
+        DateRange dateRange = DateRange.newBuilder()
+                .setStartDate("2024-10-01")
+                .setEndDate(today)
+                .build();
+
+        // RunReportRequest lấy dữ liệu báo cáo từ Google Analytics
         RunReportRequest request = RunReportRequest.newBuilder()
                 .setProperty("properties/" + propertyId)
-                .addDimensions(Dimension.newBuilder().setName("date").build())
-                .addMetrics(Metric.newBuilder().setName("activeUsers").build())
-                .addDateRanges(DateRange.newBuilder().setStartDate("2024-10-01").setEndDate("today").build())
+                .addMetrics(Metric.newBuilder().setName("sessions").build())
+                .addDateRanges(dateRange)
                 .build();
 
         RunReportResponse response = betaAnalyticsDataClient.runReport(request);
@@ -33,8 +41,8 @@ public class GoogleAnalyticsService {
             return 0;
         }
 
-        // Sử dụng Stream API để tính tổng số lượng active users
         return response.getRowsList().stream()
+                .peek(row -> System.out.println("Processing row: " + row))
                 .mapToLong(row -> Long.parseLong(row.getMetricValues(0).getValue()))
                 .sum();
     }

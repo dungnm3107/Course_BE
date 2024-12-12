@@ -21,10 +21,10 @@ public class GoogleAnalyticsController {
     }
 // seccion(1 lượt truy cập) bắt đầu khi user truy cập vào trang web và kết thúc khi user không có hoạt động nào trong 30 phút.
     @GetMapping("/user-access")
-    public ResponseEntity<Long> getActiveUsers() {
+    public ResponseEntity<Long> getAccessSessions() {
         try {
-            long activeUsers = googleAnalyticsService.getActiveUsers();
-            return ResponseEntity.ok(activeUsers);
+            long accessSessions = googleAnalyticsService.getAccessSessions();
+            return ResponseEntity.ok(accessSessions);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(0L);
         }

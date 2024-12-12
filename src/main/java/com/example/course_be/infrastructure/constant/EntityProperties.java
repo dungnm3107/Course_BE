@@ -1,6 +1,7 @@
 package com.example.course_be.infrastructure.constant;
 
 public class EntityProperties {
+    public static final int MAX_LENGTH_2000 = 2000;
     public static final int MAX_LENGTH_225 = 255;
     public static final int MAX_LENGTH_100 = 100;
     public static final int MAX_LENGTH_50 = 50;
